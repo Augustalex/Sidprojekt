@@ -1,0 +1,22 @@
+{
+  "name": "gmz3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "get-port": "^3.2.0",
+    "ip": "^1.1.5",
+    "uuid": "^3.2.1",
+    "vue": "^2.5.16",
+    "vue-server-renderer": "^2.5.16"
+  },
+  "devDependencies": {
+    "bocha": "^1.5.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
