@@ -2,11 +2,16 @@ import "babel-polyfill";
 import getUserMedia from '../utils/getUserMedia.js';
 import Recorder from '../utils/recorder.js';
 
-module.exports = {
+navigator.getUserMedia = ( navigator.getUserMedia ||
+    navigator.webkitGetUserMedia ||
+    navigator.mozGetUserMedia ||
+    navigator.msGetUserMedia);
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const audioContext = new AudioContext;
+export default {
     async startRecording() {
-        let audio_context = new AudioContext;
         let audioStream = await getUserMedia({ audio: true });
-        let input = audio_context.createMediaStreamSource(audioStream);
+        let input = audioContext.createMediaStreamSource(audioStream);
         let recorder = new Recorder(input);
         recorder.record();
 

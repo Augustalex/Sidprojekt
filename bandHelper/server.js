@@ -1,10 +1,18 @@
-let http = require('http');
-let express = require('express');
-let app = express();
+const https = require('https');
+const express = require('express');
+const app = express();
+const readFile = require('../common/readFile.js');
 
-let readFile = require('../common/readFile.js');
-app.get('/', () => {
-    console.log('someone is requesting a get!');
-});
-app.use(express.static('./dist'));
-app.listen(3000, '0.0.0.0');
+(async function () {
+    app.use(express.static('./dist'));
+    app.get('/', () => {
+        console.log('someone is requesting a get!');
+    });
+
+    let sslOptions = {
+        key: await readFile('./ssl.key'),
+        cert: await readFile('./ssl.cert')
+    }
+    https.createServer(sslOptions, app)
+        .listen(3000, '0.0.0.0');
+}());

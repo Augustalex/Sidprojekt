@@ -8,25 +8,19 @@
             </div>
             <div class="card">
                 <h2>Recorder</h2>
-                <button v-if="!isRecording" @click="startRecording">Start recording</button>
+                <button v-if="!activeRecording" :disabled="!activeRecording && isRecording" @click="startRecording">Start recording</button>
                 <button v-else @click="stopRecording">Stop recording</button>
             </div>
         </div>
         <div class="section">
             <h2>Recordings</h2>
             <div class="column">
-                <div v-for="recording in recordings" class="card fluid">
-                    <label>{{ recording.title }}</label>
-                    <button v-if="!activeSubTrackRecording" @click="startSubTrackRecording(recording)">
-                        Record sub track
-                    </button>
-                    <button v-else @click="stopSubTrackRecording(recording)">Stop recording</button>
-                    <button @click="recordingClick(recording)">Select in player</button>
-                    <div v-for="subTrack in (recording.subTracks || [])" class="subTrack-row">
-                        <label>{{ subTrack.title }}</label>
-                        <button @click="recordingClick(subTrack)">Select in player</button>
-                    </div>
-                </div>
+                <main-track
+                        v-for="recording in recordings"
+                        :track="recording"
+                        :cannotRecord="isRecording"
+                        @selectInPlayer="recordingClick"
+                        @recording="setIsRecording"/>
             </div>
         </div>
     </div>
@@ -36,25 +30,25 @@
     import getUserMedia from '../utils/getUserMedia.js';
     import Recorder from '../utils/recorder.js';
     import recUtils from '../utils/recUtils.js';
+    import SubTrackView from './SubTrack.vue';
+    import TrackView from './Track.vue';
 
     export default {
-        data () {
+        data() {
             return {
                 playerRecording: null,
                 recordings: [],
                 activeRecording: null,
-                activeSubTrackRecording: null
+                activeSubTrackRecording: null,
+                isRecording: false
             }
         },
         computed: {
-            isRecording() {
-                return !!this.activeRecording;
-            },
             playerRecordingTitle() {
                 if (this.playerRecording) {
                     let title = this.playerRecording.title;
                     if (this.playerRecording.parentTitle) {
-                        return title + `<small> [${this.playerRecording.parentTitle}]</small>`;
+                        return title + `<small class="parentTitle"> [${this.playerRecording.parentTitle}]</small>`;
                     }
                     return title;
                 }
@@ -62,51 +56,28 @@
             }
         },
         methods: {
+            setIsRecording(isRecording) {
+                this.isRecording = isRecording;
+            },
             async startRecording() {
-                this.activeRecording = await recUtils.startRecording();
+                try {
+                    this.activeRecording = await recUtils.startRecording();
+                }
+                catch (err) {
+                    alert(err);
+                }
             },
             async stopRecording() {
-                if (this.activeRecording) {
-                    this.stopMainRecording();
-                }
-                else {
-                    this.stopSubTrackRecording();
-                }
-            },
-            async stopMainRecording() {
                 let audioSrc = await this.activeRecording.stop();
                 this.activeRecording = null;
                 let title = prompt('Name recording');
-                this.storeMainRecording(title, audioSrc);
+                this.storeRecording(title, audioSrc);
             },
-            async startSubTrackRecording(recording) {
-                console.log('startSubTrackRecording');
-                let activeRecording = await recUtils.startRecording();
-                this.activeSubTrackRecording = {
-                    recording: activeRecording,
-                    parentRecording: recording
-                };
-            },
-            async stopSubTrackRecording() {
-                let audioSrc = await this.activeSubTrackRecording.recording.stop();
-                let title = prompt('Name recording');
-                this.storeSubTrackRecording(title, audioSrc, this.activeSubTrackRecording.parentRecording);
-                this.activeSubTrackRecording = null;
-            },
-            storeSubTrackRecording(title, audioSrc, parentRecording) {
+            storeRecording(title, audioSrc) {
                 let recording = {
                     title,
-                    parentTitle: parentRecording.title,
-                    src: audioSrc
-                };
-                parentRecording.subTracks = parentRecording.subTracks || [];
-                parentRecording.subTracks.push(recording);
-                this.playerRecording = recording;
-            },
-            storeMainRecording(title, audioSrc) {
-                let recording = {
-                    title,
-                    src: audioSrc
+                    src: audioSrc,
+                    subTracks: []
                 };
                 this.recordings.push(recording);
                 this.playerRecording = recording;
@@ -114,10 +85,14 @@
             recordingClick(recording) {
                 this.playerRecording = recording;
             }
+        },
+        components: {
+            'sub-track': SubTrackView,
+            'main-track': TrackView
         }
     }
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
     @import "../node_modules/mini.css/src/flavors/mini-nord.scss";
 
     .subTrack-row {
@@ -128,7 +103,7 @@
         margin-left: 1%;
     }
 
-    small {
-        font-size: .2em;
+    .parentTitle {
+        display: inline;
     }
 </style>

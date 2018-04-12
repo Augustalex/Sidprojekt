@@ -12,7 +12,10 @@
     "vue-server-renderer": "^2.5.16"
   },
   "devDependencies": {
-    "bocha": "^1.5.5"
+    "babel-preset-env": "^1.6.1",
+    "bocha": "^1.5.5",
+    "parcel-bundler": "^1.7.0",
+    "parcel-plugin-vue": "^1.5.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
