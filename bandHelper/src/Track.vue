@@ -1,10 +1,19 @@
 <template>
-    <div class="card fluid">
+    <div class="card fluid track">
+        <div class="track-controls">
         <label>{{ track.title }}</label>
-        <!--<button v-if="!activeRecording && cannotRecord" disabled>Cannot record</button>-->
-        <button v-if="!activeRecording" :disabled="!activeRecording && cannotRecord" @click="startRecording">Record sub track</button>
-        <button v-else @click="stopRecording">Stop recording</button>
-        <button @click="selectInPlayer(track)">Select in player</button>
+        <div class="button-container">
+            <button
+                    v-if="!activeRecording"
+                    :disabled="!activeRecording && cannotRecord"
+                    @click="startRecording"
+                    class="button--red">
+                REC
+            </button>
+            <button v-else @click="stopRecording">Stop</button>
+            <button @click="selectInPlayer(track)">Select</button>
+        </div>
+        </div>
         <sub-track
                 v-for="subTrack in subTracks"
                 :subTrack="subTrack"
@@ -64,3 +73,17 @@
         }
     };
 </script>
+<style lang="scss">
+    @import "../node_modules/mini.css/src/flavors/mini-nord.scss";
+
+    .button-container {
+    }
+
+    .track-controls > label {
+        font-size: 2em;
+    }
+
+    .track-controls {
+        display: flex;
+    }
+</style>

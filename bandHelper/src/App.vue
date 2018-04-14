@@ -1,14 +1,16 @@
 <template>
     <div class="container">
-        <div class="row">
-            <div class="card">
+        <div class="column">
+            <div class="card audioPlayer">
                 <h2 v-if="playerRecordingTitle" v-html="playerRecordingTitle"></h2>
                 <h2 v-else>Audio player</h2>
                 <audio :src="playerRecording && playerRecording.src" controls loop class="section"></audio>
             </div>
             <div class="card">
                 <h2>Recorder</h2>
-                <button v-if="!activeRecording" :disabled="!activeRecording && isRecording" @click="startRecording">Start recording</button>
+                <button v-if="!activeRecording" :disabled="!activeRecording && isRecording" @click="startRecording">
+                    Record song
+                </button>
                 <button v-else @click="stopRecording">Stop recording</button>
             </div>
         </div>
@@ -34,10 +36,14 @@
     import TrackView from './Track.vue';
 
     export default {
+        props: [
+            'recordings',
+            'storeRecording'
+        ],
         data() {
             return {
                 playerRecording: null,
-                recordings: [],
+//                recordings: [],
                 activeRecording: null,
                 activeSubTrackRecording: null,
                 isRecording: false
@@ -61,27 +67,27 @@
             },
             async startRecording() {
                 try {
-                    this.activeRecording = await recUtils.startRecording();
+                    this.activeRecording = await recUtils.startRawRecording();
                 }
                 catch (err) {
                     alert(err);
                 }
             },
             async stopRecording() {
-                let audioSrc = await this.activeRecording.stop();
+                let audioBlob = await this.activeRecording.stop();
                 this.activeRecording = null;
                 let title = prompt('Name recording');
-                this.storeRecording(title, audioSrc);
+                this.storeRecording(title, audioBlob);
             },
-            storeRecording(title, audioSrc) {
-                let recording = {
-                    title,
-                    src: audioSrc,
-                    subTracks: []
-                };
-                this.recordings.push(recording);
-                this.playerRecording = recording;
-            },
+//            storeRecording(title, audioSrc) {
+//                let recording = {
+//                    title,
+//                    src: audioSrc,
+//                    subTracks: []
+//                };
+//                this.recordings.push(recording);
+//                this.playerRecording = recording;
+//            },
             recordingClick(recording) {
                 this.playerRecording = recording;
             }
@@ -95,6 +101,19 @@
 <style lang="scss">
     @import "../node_modules/mini.css/src/flavors/mini-nord.scss";
 
+    body {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background: #424242;
+        color: white;
+    }
+
+    .audioPlayer {
+        margin-top: 10px;
+        padding-bottom: 10px;
+    }
+
     .subTrack-row {
         display: flex;
         width: 100%;
@@ -105,5 +124,18 @@
 
     .parentTitle {
         display: inline;
+    }
+
+    .card {
+        color: #424242;
+    }
+
+    .button--red {
+        background-color: tomato;
+        color: white;
+
+        &:hover, &:focus {
+            background-color: tomato;
+        }
     }
 </style>

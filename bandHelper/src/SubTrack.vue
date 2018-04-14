@@ -1,17 +1,24 @@
 <template>
-    <div class="subTrack-row">
-        <label>{{ subTrack.title }}</label>
-        <!--<button v-if="!activeRecording && cannotRecord" disabled>Cannot record</button>-->
-        <button v-if="!activeRecording" :disabled="!activeRecording && cannotRecord" @click="startRecording">
-            Record sub track
-        </button>
-        <button v-else @click="stopRecording">Stop recording</button>
-        <button @click="selectInPlayer(subTrack)">Select in player</button>
-        <sub-track
-                v-for="track in subTracks"
-                :subTrack="track"
-                :cannotRecord="true"
-                @selectInPlayer="selectInPlayer"/>
+    <div class="section">
+        <div class="subTrack-row">
+            <label>{{ subTrack.title }}</label>
+            <button
+                    v-if="!activeRecording"
+                    :disabled="!activeRecording && cannotRecord"
+                    @click="startRecording"
+                    class="button--red">
+                REC
+            </button>
+            <button v-else @click="stopRecording">Stop</button>
+            <button @click="selectInPlayer(subTrack)">Select</button>
+        </div>
+        <div v-if="subTracks.length" class="subTracksContainer">
+            <sub-track
+                    v-for="track in subTracks"
+                    :subTrack="track"
+                    :cannotRecord="true"
+                    @selectInPlayer="selectInPlayer"/>
+        </div>
     </div>
 </template>
 <script>
@@ -58,3 +65,11 @@
         }
     };
 </script>
+<style lang="scss">
+    @import "../node_modules/mini.css/src/flavors/mini-nord.scss";
+
+    .subTracksContainer {
+        margin-left: 5%;
+        margin-bottom: 20px;
+    }
+</style>
