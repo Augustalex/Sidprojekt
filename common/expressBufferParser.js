@@ -1,7 +1,6 @@
 module.exports = async function (req, res, next) {
     if (req.method === 'POST') {
         req.buffer = await readBuffer(req);
-        req.body = req.buffer.toString('binary');
     }
     next();
 };
