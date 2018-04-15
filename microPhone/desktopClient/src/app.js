@@ -1,6 +1,7 @@
 const Vue = require('vue').default;
 const initSocketIO = require('../../utils/initSocketIO.js');
 const AppView = require('./App.vue');
+const ajax = require('../../../common/ajax.js');
 
 (async function () {
     await initSocketIO();
@@ -8,16 +9,20 @@ const AppView = require('./App.vue');
 
     const vm = new Vue({
         data: {
-            audioUrl: ''
+            audioUrl: '',
+            audioList: []
         },
         render(h) {
             return h(AppView, {
                 props: {
-                    audioUrl: this.audioUrl
+                    audioUrl: this.audioUrl,
+                    audioList: this.audioList
                 },
                 on: {
                     startRecording: this.startRecording,
-                    stopRecording: this.stopRecording
+                    stopRecording: this.stopRecording,
+                    refreshAudioList: this.refreshAudioList,
+                    selectAudioInList: this.selectAudioInList
                 }
             });
         },
@@ -30,12 +35,20 @@ const AppView = require('./App.vue');
                     name: 'stopRecording',
                     data: recordingName
                 });
+            },
+            async refreshAudioList() {
+                this.audioList = await ajax.get('/audio');
+            },
+            selectAudioInList(index) {
+                let { id } = this.audioList[index];
+                this.audioUrl = `audio/${id}`;
             }
         },
-        mounted() {
-            socket.on('audioUrl', url => {
-                this.audioUrl = url;
+        async mounted() {
+            socket.on('audioStored', audioUrl => {
+                this.audioUrl = audioUrl;
             });
+            await this.refreshAudioList();
         }
     });
     vm.$mount('#app');

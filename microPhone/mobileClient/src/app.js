@@ -7,7 +7,6 @@ const ajax = require('../../../common/ajax.js');
     const socket = io();
     let recordInstance;
     socket.on('command', async command => {
-        console.log('command', command)
         switch (command.name) {
             case 'startRecording':
                 if (recordInstance) {

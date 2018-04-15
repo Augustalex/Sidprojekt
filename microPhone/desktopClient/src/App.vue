@@ -3,6 +3,14 @@
         <audio :src="audioUrl" controls></audio>
         <button v-if="!recording" @click="startClick">Start</button>
         <button v-else @click="stopClick">Stop</button>
+        <div>
+            <h1>Audio list</h1>
+            <button @click="$emit('refreshAudioList')">Refresh audio list</button>
+            <div v-for="(entry, index) in audioList" :key="entry.id">
+                <label>{{ entry.metadata.name }}</label>
+                <button @click="$emit('selectAudioInList', index)">Select in player</button>
+            </div>
+        </div>
         <modal v-if="recordingNameModalVisible" @close="closeModal">
             <div>
                 <label class="label">
@@ -21,7 +29,7 @@
     const ModalView = require('./Modal.vue');
 
     module.exports = {
-        props: ['audioUrl'],
+        props: ['audioUrl', 'audioList'],
         data() {
             return {
                 recording: false,
@@ -46,15 +54,15 @@
                 else {
                     this.recordingNameModalVisible = false;
                     this.recordingNameModalErrorText = '';
-                    this.recordingName = '';
-
                     this.recording = true;
-                    this.$emit('startRecording');
+                    this.$emit('startRecording', this.recordingName);
                 }
             },
             stopClick() {
+                let name = this.recordingName;
+                this.recordingName = '';
                 this.recording = false;
-                this.$emit('stopRecording');
+                this.$emit('stopRecording', name);
             },
             closeModal() {
                 this.recordingNameModalVisible = false;
